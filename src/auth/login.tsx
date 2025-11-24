@@ -48,11 +48,11 @@ const Login = () => {
             <form className="w-full">
               <div className="mb-4">
                 <label className="block text-gray-700 font-medium mb-2">Email</label>
-                <input type="email" className="w-full border rounded-lg px-4 py-3 outline-none focus:border-blue-500" placeholder="" />
+                <input type="email" className="w-full border border-gray-200 rounded-lg px-4 py-3 outline-none focus:border-blue-500" placeholder="" />
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 font-medium mb-2">Password</label>
-                <input type="password" className="w-full border rounded-lg px-4 py-3 outline-none focus:border-blue-500" placeholder="" />
+                <input type="password" className="w-full border border-gray-200 rounded-lg px-4 py-3 outline-none focus:border-blue-500" placeholder="" />
               </div>
               <div className="flex items-center justify-between mb-6">
                 <label className="flex items-center gap-2 text-gray-600 text-sm">
