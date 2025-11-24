@@ -10,6 +10,8 @@ import StoryCard from '../components/storyCard';
 import MightLike from '../components/mightLIke';
 import ShowFriend from '../components/showFriend';
 import { FiSearch } from 'react-icons/fi';
+import CreatePost from '../components/createPost';
+import FeedPost from '../components/feedPost';
 
 const Feed = () => {
     return (
@@ -122,7 +124,7 @@ const Feed = () => {
 
 
             {/* middle side div */}
-            <div>
+            <div className='space-y-5 max-w-[660px]'>
                         
                 {/* story section */}
                 <div className='flex gap-5 w-[660px] overflow-x-auto whitespace-nowrap scrollbar-hide'>
@@ -148,15 +150,32 @@ const Feed = () => {
 
 
                 {/* create post section */}
-                <div>
-
+                <div >
+                    <CreatePost profilePic={profilePic}></CreatePost>
                 </div>
 
 
 
                 {/* feed section  */}
-                <div>
-                    
+                <div >
+                    <FeedPost
+                        author="Karim Saif"
+                        profilePic={profilePic}
+                        time="5 minute ago"
+                        content="Healthy Tracking App"
+                        image="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80"
+                        reactions={[{ type: 'Haha', count: 198 }]}
+                        comments={[
+                            {
+                                id: '1',
+                                author: 'Radovan SkillArena',
+                                profilePic: profilePic,
+                                text: 'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.',
+                                time: '21m',
+                                likes: 198,
+                            },
+                        ]}
+                    />
                 </div>
 
 
