@@ -1,4 +1,4 @@
-import type { RegisterData, LoginData, AuthResponse } from '../types/auth';
+import type { RegisterData, LoginData, AuthResponse, User } from '../types/auth';
 
 const API_URL = 'http://localhost:3000';
 
@@ -61,5 +61,39 @@ export const authService = {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  },
+
+  async verifyToken(): Promise<{ valid: boolean; user?: User }> {
+    const token = this.getToken();
+    
+    if (!token) {
+      return { valid: false };
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/auth/verify`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        this.logout();
+        return { valid: false };
+      }
+
+      const result = await response.json();
+      
+      // Update user data in localStorage
+      if (result.user) {
+        localStorage.setItem('user', JSON.stringify(result.user));
+      }
+
+      return { valid: true, user: result.user };
+    } catch {
+      this.logout();
+      return { valid: false };
+    }
   },
 };

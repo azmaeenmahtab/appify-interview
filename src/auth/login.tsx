@@ -31,6 +31,7 @@ const Login = () => {
         email: formData.email,
         password: formData.password,
       });
+      
       navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
