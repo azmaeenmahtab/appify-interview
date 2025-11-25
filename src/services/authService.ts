@@ -59,6 +59,11 @@ export const authService = {
     return user ? JSON.parse(user) : null;
   },
 
+  getUserInfo(): User | null {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  },
+
   isAuthenticated(): boolean {
     return !!this.getToken();
   },

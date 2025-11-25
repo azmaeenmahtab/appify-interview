@@ -1,4 +1,3 @@
-
 import Navbar from '../components/nav';
 import { Link } from "react-router-dom";
 import profilePic from '../assets/images/profile.png'
@@ -12,8 +11,44 @@ import ShowFriend from '../components/showFriend';
 import { FiSearch } from 'react-icons/fi';
 import CreatePost from '../components/createPost';
 import FeedPost from '../components/feedPost';
+import { useState, useEffect } from 'react';
+import { postService } from '../services/postService';
+import { authService } from '../services/authService';
+import type { Post } from '../types/post';
 
 const Feed = () => {
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [currentUserId, setCurrentUserId] = useState<number | undefined>();
+
+    const fetchPosts = async () => {
+        try {
+            setLoading(true);
+            const fetchedPosts = await postService.getPosts();
+            setPosts(fetchedPosts);
+            setError('');
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to load posts');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchPosts();
+        
+        // Get current user ID from token
+        const user = authService.getUserInfo();
+        if (user) {
+            setCurrentUserId(parseInt(user.id));
+        }
+    }, []);
+
+    const handlePostCreated = () => {
+        fetchPosts(); // Refresh posts after creating a new one
+    };
+
     return (
     <div className='bg-gray-100 '> 
         <Navbar />
@@ -151,31 +186,49 @@ const Feed = () => {
 
                 {/* create post section */}
                 <div >
-                    <CreatePost profilePic={profilePic}></CreatePost>
+                    <CreatePost profilePic={profilePic} onPostCreated={handlePostCreated}></CreatePost>
                 </div>
 
 
 
                 {/* feed section  */}
-                <div >
-                    <FeedPost
-                        author="Karim Saif"
-                        profilePic={profilePic}
-                        time="5 minute ago"
-                        content="Healthy Tracking App"
-                        image="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80"
-                        reactions={[{ type: 'Haha', count: 198 }]}
-                        comments={[
-                            {
-                                id: '1',
-                                author: 'Radovan SkillArena',
-                                profilePic: profilePic,
-                                text: 'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.',
-                                time: '21m',
-                                likes: 198,
-                            },
-                        ]}
-                    />
+                <div className="space-y-5">
+                    {loading && (
+                        <div className="bg-white rounded-xl p-8 text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+                            <p className="mt-4 text-gray-600">Loading posts...</p>
+                        </div>
+                    )}
+
+                    {error && (
+                        <div className="bg-red-100 text-red-700 rounded-xl p-4">
+                            {error}
+                        </div>
+                    )}
+
+                    {!loading && !error && posts.length === 0 && (
+                        <div className="bg-white rounded-xl p-8 text-center">
+                            <p className="text-gray-600">No posts yet. Be the first to post!</p>
+                        </div>
+                    )}
+
+                    {!loading && posts.map((post) => (
+                        <FeedPost
+                            key={post.id}
+                            postId={post.id}
+                            author={`${post.user_first_name} ${post.user_last_name}`}
+                            profilePic={profilePic}
+                            time={new Date(post.created_at).toLocaleString()}
+                            content={post.content || ''}
+                            image={post.image_url || ''}
+                            likesCount={post.likes_count}
+                            isLikedByUser={post.is_liked_by_user || false}
+                            commentsCount={post.comments_count || 0}
+                            isPublic={post.is_public}
+                            onLikeUpdate={fetchPosts}
+                            currentUserId={currentUserId}
+                        />
+                    ))}
                 </div>
 
 
