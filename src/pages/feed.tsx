@@ -7,7 +7,7 @@ import UserSuggestion from '../components/usersuggestion';
 import EventCard from '../components/eventCard';
 import { MdAdd } from 'react-icons/md';
 import StoryCard from '../components/storyCard';
-import MightLike from '../components/mightLIke';
+import MightLike from '../components/mightLike';
 import ShowFriend from '../components/showFriend';
 import { FiSearch } from 'react-icons/fi';
 import CreatePost from '../components/createPost';

@@ -1,12 +1,43 @@
-import  LoginPic from "../../src/assets/images/login.png"
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import LoginPic from "../../src/assets/images/login.png"
 import googlePic from "../../src/assets/images/google.svg"
 import logo from "../../src/assets/images/logo.svg"
 import shape1 from "../../src/assets/images/shape1.svg"
 import shape2 from "../../src/assets/images/shape2.svg"
 import shape3 from "../../src/assets/images/shape3.svg"
-
+import { authService } from '../services/authService';
 
 const Login = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      await authService.login({
+        email: formData.email,
+        password: formData.password,
+      });
+      navigate('/');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="relative overflow-y-auto h-screen  scrollbar-hide bg-gray-100">
       
@@ -45,14 +76,33 @@ const Login = () => {
               <span className="mx-3 text-gray-400">Or</span>
               <hr className="flex-1 border-gray-200" />
             </div>
-            <form className="w-full">
+            <form className="w-full" onSubmit={handleSubmit}>
+              {error && (
+                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
               <div className="mb-4">
                 <label className="block text-gray-700 font-medium mb-2">Email</label>
-                <input type="email" className="w-full border border-gray-200 rounded-lg px-4 py-3 outline-none focus:border-blue-500" placeholder="" />
+                <input 
+                  type="email" 
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 outline-none focus:border-blue-500 text-black" 
+                  required 
+                />
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 font-medium mb-2">Password</label>
-                <input type="password" className="w-full border border-gray-200 rounded-lg px-4 py-3 outline-none focus:border-blue-500" placeholder="" />
+                <input 
+                  type="password" 
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 outline-none focus:border-blue-500 text-black" 
+                  required 
+                />
               </div>
               <div className="flex items-center justify-between mb-6">
                 <label className="flex items-center gap-2 text-gray-600 text-sm">
@@ -61,10 +111,16 @@ const Login = () => {
                 </label>
                 <a href="#" className="text-blue-500 text-sm font-medium hover:underline">Forgot password?</a>
               </div>
-              <button type="submit" className="w-full bg-blue-600 text-white rounded-lg py-3 font-semibold text-lg mb-4">Login now</button>
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full bg-blue-600 text-white rounded-lg py-3 font-semibold text-lg mb-4 disabled:bg-blue-300"
+              >
+                {loading ? 'Logging in...' : 'Login now'}
+              </button>
             </form>
             <div className="text-gray-500 text-sm mt-2">
-              Dont have an account? <a href="#" className="text-blue-500 font-medium hover:underline">Create New Account</a>
+              Dont have an account? <a href="/register" className="text-blue-500 font-medium hover:underline">Create New Account</a>
             </div>
           </div>
         </div>
