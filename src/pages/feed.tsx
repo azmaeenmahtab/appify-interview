@@ -1,5 +1,7 @@
 import Navbar from '../components/nav';
 import { Link } from "react-router-dom";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Avatar from '../components/Avatar';
 import profilePic from '../assets/images/profile.png'
 import storyPic1 from '../assets/images/card_ppl1.png'
 import UserSuggestion from '../components/usersuggestion';
@@ -21,6 +23,8 @@ const Feed = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [currentUserId, setCurrentUserId] = useState<number | undefined>();
+    const [currentUserFirstName, setCurrentUserFirstName] = useState('');
+    const [currentUserLastName, setCurrentUserLastName] = useState('');
 
     const fetchPosts = async () => {
         try {
@@ -42,6 +46,8 @@ const Feed = () => {
         const user = authService.getUserInfo();
         if (user) {
             setCurrentUserId(parseInt(user.id));
+            setCurrentUserFirstName(user.firstName);
+            setCurrentUserLastName(user.lastName);
         }
     }, []);
 
@@ -54,11 +60,11 @@ const Feed = () => {
         <Navbar />
         
         
-        <div className='bg-gray-100 max-w-[1380px] px-10 mx-auto h-screen overflow-y-auto scrollbar-hide flex gap-5 pt-5'> 
+        <div className='bg-gray-100 max-w-[1380px] px-10 mx-auto h-screen flex gap-5 pt-5 overflow-hidden'> 
 
 
             {/* left side div */}
-            <div className='flex-1 space-y-5 '> {/* will remove this width after middle and right part completion */}
+            <div className='flex-1 space-y-5 overflow-y-auto scrollbar-hide h-[calc(100vh-100px)] pb-5'> {/* will remove this width after middle and right part completion */}
                 
 
                 {/* explore section */}
@@ -159,7 +165,7 @@ const Feed = () => {
 
 
             {/* middle side div */}
-            <div className='space-y-5 max-w-[660px]'>
+            <div className='space-y-5 max-w-[660px] overflow-y-auto scrollbar-hide h-[calc(100vh-100px)] pb-10'>
                         
                 {/* story section */}
                 <div className='flex gap-5 w-[660px] overflow-x-auto whitespace-nowrap scrollbar-hide'>
@@ -186,7 +192,12 @@ const Feed = () => {
 
                 {/* create post section */}
                 <div >
-                    <CreatePost profilePic={profilePic} onPostCreated={handlePostCreated}></CreatePost>
+                    <CreatePost 
+                        firstName={currentUserFirstName} 
+                        lastName={currentUserLastName} 
+                        userId={currentUserId} 
+                        onPostCreated={handlePostCreated}
+                    />
                 </div>
 
 
@@ -201,14 +212,22 @@ const Feed = () => {
                     )}
 
                     {error && (
-                        <div className="bg-red-100 text-red-700 rounded-xl p-4">
-                            {error}
+                        <div className="bg-white rounded-xl p-8 text-center">
+                            <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p className="text-gray-800 font-semibold text-lg mb-2">No posts available</p>
+                            <p className="text-gray-500">Failed to fetch posts. Please try again.</p>
                         </div>
                     )}
 
                     {!loading && !error && posts.length === 0 && (
                         <div className="bg-white rounded-xl p-8 text-center">
-                            <p className="text-gray-600">No posts yet. Be the first to post!</p>
+                            <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p className="text-gray-800 font-semibold text-lg mb-2">No posts available</p>
+                            <p className="text-gray-500">Be the first to share something!</p>
                         </div>
                     )}
 
@@ -217,6 +236,9 @@ const Feed = () => {
                             key={post.id}
                             postId={post.id}
                             author={`${post.user_first_name} ${post.user_last_name}`}
+                            authorFirstName={post.user_first_name}
+                            authorLastName={post.user_last_name}
+                            authorUserId={post.user_id}
                             profilePic={profilePic}
                             time={new Date(post.created_at).toLocaleString()}
                             content={post.content || ''}
@@ -236,7 +258,7 @@ const Feed = () => {
         
         
             {/* right side div */} 
-            <div className='flex-1  space-y-5 '>
+            <div className='flex-1 space-y-5 overflow-y-auto scrollbar-hide h-[calc(100vh-100px)] pb-5'>
                 
 
                 {/* explore section */}

@@ -1,10 +1,36 @@
 import { IoIosArrowDown } from "react-icons/io";
-import profilePic from '../assets/images/profile.png'
+import { FiLogOut, FiSettings, FiUser } from "react-icons/fi";
+import Avatar from './Avatar';
 import logo from '../assets/images/logo.svg';
 import { FiSearch } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useRef, useMemo, useEffect } from "react";
+import { authService } from "../services/authService";
+import type { User } from "../types/auth";
 
 const Navbar = () => {
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const navigate = useNavigate();
+
+    const user: User | null = useMemo(() => authService.getUserInfo(), []);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleLogout = () => {
+        authService.logout();
+        navigate('/login');
+    };
+
     return (<div className="bg-white">
         <nav className='flex justify-between items-center max-w-[1380px] px-10 mx-auto py-4'>
             <img src={logo} alt="Logo" />
@@ -42,11 +68,86 @@ const Navbar = () => {
                     </svg>
                 </Link>
 
-            <div className="flex items-center text-black gap-3">
-            {/* for individual user navigation */}
-                <img src={profilePic} alt="Profile" className="w-6 h-6" />
-                <h5 className="text-black ">Daniel</h5>
-                <IoIosArrowDown />
+            <div className="relative" ref={dropdownRef}>
+                <button 
+                    onClick={() => setShowDropdown(!showDropdown)}
+                    className="flex items-center text-black gap-3 hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors"
+                >
+                    <Avatar 
+                        firstName={user?.firstName || 'U'} 
+                        lastName={user?.lastName || 'ser'} 
+                        userId={parseInt(user?.id || '0')} 
+                        size="xs" 
+                    />
+                    <h5 className="text-black">{user ? `${user.firstName} ${user.lastName}` : 'User'}</h5>
+                    <IoIosArrowDown className={`transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown Menu */}
+                {showDropdown && (
+                    <div className="absolute right-0 mt-2 w-[300px]   bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+                        {/* User Info */}
+                        <div className="px-4 py-3 border-b border-gray-200">
+                            <div className="flex items-center gap-3">
+                                <Avatar 
+                                    firstName={user?.firstName || 'U'} 
+                                    lastName={user?.lastName || 'ser'} 
+                                    userId={parseInt(user?.id || '0')} 
+                                    size="lg" 
+                                />
+                                <div>
+                                    <div className="font-semibold text-gray-800">
+                                        {user?.firstName} {user?.lastName}
+                                    </div>
+                                    <div className="text-sm text-gray-500">{user?.email}</div>
+                                </div>
+                            </div>
+                            <Link 
+                                to="/profile"
+                                className="mt-2 text-blue-500 text-sm hover:underline inline-block"
+                                onClick={() => setShowDropdown(false)}
+                            >
+                                View Profile
+                            </Link>
+                        </div>
+
+                        {/* Menu Items */}
+                        <div className="py-2">
+                            <button
+                                onClick={() => {
+                                    setShowDropdown(false);
+                                    navigate('/settings');
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700"
+                            >
+                                <FiSettings size={20} className="text-gray-500" />
+                                <span>Settings</span>
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    setShowDropdown(false);
+                                    navigate('/help');
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700"
+                            >
+                                <FiUser size={20} className="text-gray-500" />
+                                <span>Help & Support</span>
+                            </button>
+                        </div>
+
+                        {/* Logout */}
+                        <div className="border-t border-gray-200 pt-2">
+                            <button
+                                onClick={handleLogout}
+                                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600"
+                            >
+                                <FiLogOut size={20} />
+                                <span className="font-medium">Log Out</span>
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
             </div>
         </nav>

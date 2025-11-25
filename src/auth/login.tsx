@@ -63,7 +63,7 @@ const Login = () => {
         <div className="max-w-[635px]">  {/*image div */}
           <img src={LoginPic} alt="Login" />
         </div>
-        <div className="bg-white rounded-sm z-1"> {/* form div */}
+        <div className="bg-white rounded-sm z-1 max-w-[420px] w-full"> {/* form div */}
           <div className="flex flex-col items-center justify-center px-8 py-10 w-full max-w-[400px] mx-auto">
             <img src={logo} alt="Logo" className="h-10 mb-6" />
             <div className="text-gray-500 text-lg mb-1">Welcome back</div>

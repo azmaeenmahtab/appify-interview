@@ -65,7 +65,7 @@ const Register = () => {
       
       
       
-      <div className="flex items-center max-w-[1200px] mx-auto justify-between bg-gray-100 my-[100px]">
+      <div className="flex   max-w-[1200px] mx-auto justify-between bg-gray-100 my-[100px]">
 
         
 
@@ -73,7 +73,7 @@ const Register = () => {
         <div className="max-w-[860px] w-full">  {/*image div */}
           <img src={registerpic} alt="Register" />
         </div>
-        <div className="bg-white rounded-sm z-1"> {/* form div */}
+        <div className="bg-white rounded-sm z-1 max-w-[420px] w-full"> {/* form div */}
                     <div className="flex flex-col items-center justify-center px-8 py-10 w-full max-w-[400px] mx-auto">
                       <img src={logo} alt="Logo" className="h-10 mb-6" />
                       <div className="text-gray-500 text-lg mb-1">Get Started Now</div>

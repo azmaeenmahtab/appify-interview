@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import CommentBox from './commentBox';
 import LikesModal from './LikesModal';
+import Avatar from './Avatar';
 import { postService } from '../services/postService';
 import commentService from '../services/commentService';
 import type { Comment } from '../types/comment';
@@ -9,6 +10,9 @@ import type { Comment } from '../types/comment';
 interface FeedPostProps {
   postId: number;
   author: string;
+  authorFirstName: string;
+  authorLastName: string;
+  authorUserId: number;
   profilePic: string;
   time: string;
   content: string;
@@ -25,7 +29,9 @@ interface FeedPostProps {
 const FeedPost: React.FC<FeedPostProps> = ({
   postId,
   author,
-  profilePic,
+  authorFirstName,
+  authorLastName,
+  authorUserId,
   time,
   content,
   image,
@@ -51,22 +57,32 @@ const FeedPost: React.FC<FeedPostProps> = ({
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [showLikesModal, setShowLikesModal] = useState(false);
+  const [commentsLoaded, setCommentsLoaded] = useState(false);
 
   useEffect(() => {
-    if (showComments && comments.length === 0) {
+    if (showComments && !commentsLoaded) {
       loadComments();
+      setCommentsLoaded(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showComments]);
 
-  const loadComments = async () => {
+  const loadComments = async (reset: boolean = false) => {
     if (loadingComments) return;
     
     setLoadingComments(true);
     try {
-      const result = await commentService.getComments(postId, 5, commentOffset);
-      setComments(prev => [...prev, ...result.comments]);
-      setCommentOffset(prev => prev + result.comments.length);
+      const currentOffset = reset ? 0 : commentOffset;
+      const result = await commentService.getComments(postId, 5, currentOffset);
+      
+      if (reset) {
+        setComments(result.comments);
+        setCommentOffset(result.comments.length);
+      } else {
+        setComments(prev => [...prev, ...result.comments]);
+        setCommentOffset(prev => prev + result.comments.length);
+      }
+      
       setHasMoreComments(result.comments.length === 5);
     } catch (error) {
       console.error('Failed to load comments:', error);
@@ -86,10 +102,9 @@ const FeedPost: React.FC<FeedPostProps> = ({
         await commentService.addComment(postId, { content: commentText });
       }
       
-      // Refresh comments
-      setComments([]);
+      // Refresh comments from the beginning
       setCommentOffset(0);
-      await loadComments();
+      await loadComments(true);
       setCommentsCount(prev => prev + 1);
       setCommentText('');
       setReplyingTo(null);
@@ -105,10 +120,9 @@ const FeedPost: React.FC<FeedPostProps> = ({
     try {
       await commentService.deleteComment(commentId);
       
-      // Refresh comments
-      setComments([]);
+      // Refresh comments from the beginning
       setCommentOffset(0);
-      await loadComments();
+      await loadComments(true);
       setCommentsCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Failed to delete comment:', error);
@@ -171,7 +185,7 @@ const FeedPost: React.FC<FeedPostProps> = ({
     <div className="bg-white rounded-xl p-4 shadow mb-6">
       {/* Post header */}
       <div className="flex items-center gap-3 mb-2">
-        <img src={profilePic} alt={author} className="w-10 h-10 rounded-full object-cover" />
+        <Avatar firstName={authorFirstName} lastName={authorLastName} userId={authorUserId} size="md" />
         <div>
           <div className="font-semibold text-[16px] text-black">{author}</div>
           <div className="text-gray-400 text-xs">{time} · {isPublic ? 'Public' : 'Private'}</div>
@@ -219,10 +233,20 @@ const FeedPost: React.FC<FeedPostProps> = ({
       {/* Comment section */}
       {showComments && (
         <div className="mt-4">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-full bg-linear-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-              U
+          {replyingTo && (
+            <div className="mb-2 ml-10 text-xs text-gray-500">
+              Replying to comment 
+              <button
+                onClick={() => setReplyingTo(null)}
+                className="ml-2 text-blue-500 hover:underline"
+              >
+                Cancel
+              </button>
             </div>
+          )}
+          
+          <div className="flex items-center gap-2 mb-3">
+            <Avatar firstName={authorFirstName} lastName={authorLastName} userId={authorUserId} size="sm" />
             <div className="flex-1 flex gap-2">
               <input
                 type="text"
@@ -247,18 +271,6 @@ const FeedPost: React.FC<FeedPostProps> = ({
             </div>
           </div>
           
-          {replyingTo && (
-            <div className="mb-2 ml-10 text-xs text-gray-500">
-              Replying to comment 
-              <button
-                onClick={() => setReplyingTo(null)}
-                className="ml-2 text-blue-500 hover:underline"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-          
           {/* Render comments */}
           {loadingComments && comments.length === 0 ? (
             <div className="text-center text-gray-500 py-4">Loading comments...</div>
@@ -277,11 +289,11 @@ const FeedPost: React.FC<FeedPostProps> = ({
               
               {hasMoreComments && (
                 <button
-                  onClick={loadComments}
+                  onClick={() => loadComments(false)}
                   disabled={loadingComments}
                   className="w-full py-2 mt-2 text-blue-500 hover:text-blue-600 text-sm font-medium disabled:text-gray-400"
                 >
-                  {loadingComments ? 'Loading...' : 'Load more comments'}
+                  {loadingComments ? 'Loading...' : 'View more comments'}
                 </button>
               )}
             </>
