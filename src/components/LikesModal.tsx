@@ -96,7 +96,7 @@ const LikesModal: React.FC<LikesModalProps> = ({ isOpen, onClose, title, fetchLi
               <div className="space-y-3">
                 {likes.map((like) => (
                   <div key={like.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 rounded-full bg-linear-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold">
                       {like.user_first_name[0]}{like.user_last_name[0]}
                     </div>
                     <div className="flex-1">

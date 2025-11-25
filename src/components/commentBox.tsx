@@ -82,7 +82,7 @@ const CommentBox: React.FC<CommentBoxProps> = ({
 	return (
 		<div className={`mb-2 ${depth > 0 ? 'ml-8' : ''}`}>
 			<div className="flex gap-2 items-start">
-				<div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+				<div className="w-8 h-8 rounded-full bg-linear-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
 					{comment.user_first_name[0]}{comment.user_last_name[0]}
 				</div>
 				<div className="bg-gray-100 rounded-lg px-3 py-2 flex-1">

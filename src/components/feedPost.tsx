@@ -220,7 +220,7 @@ const FeedPost: React.FC<FeedPostProps> = ({
       {showComments && (
         <div className="mt-4">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-8 h-8 rounded-full bg-linear-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
               U
             </div>
             <div className="flex-1 flex gap-2">
